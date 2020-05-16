@@ -208,13 +208,13 @@ function check_fw_status ($rule_prefix) {
 	$i = 0;
 	$return_status = 0;
         foreach ($filters['rule'] as $filter) {
-		if (strpos($filter['descr'], $rule_prefix) !== false) {
-			if (isset($current_config['data']['config']['filter']['rule'][$i]['disabled'])) {
-				$return_status++;
-			}
-		}
-                $i++;
-	}
+		    if (strpos($filter['descr'], $rule_prefix) !== false) {
+			    if (isset($current_config['data']['config']['filter']['rule'][$i]['disabled'])) {
+				    $return_status++;
+			    }
+		    }
+        $i++;
+	    }
 	return $return_status;
 }
 
@@ -222,23 +222,23 @@ function check_fw_status ($rule_prefix) {
 function firewall_action($fw_change_action, $rule_prefix) {
 	global $target_pfsense_host;
 
-        // Get the existing Configuration
-        $current_config = api_request($target_pfsense_host, "POST", "config_get");
+    // Get the existing Configuration
+    $current_config = api_request($target_pfsense_host, "POST", "config_get");
 
-        // Prepare filters only for processing
-        $filters = $current_config['data']['config']['filter'];
+    // Prepare filters only for processing
+    $filters = $current_config['data']['config']['filter'];
 
-        $i = 0;
-        foreach ($filters['rule'] as $filter) {
-                if (strpos($filter['descr'], $rule_prefix) !== false) {
-			if ($fw_change_action === 0) {
-                                unset($current_config['data']['config']['filter']['rule'][$i]['disabled']);
-			} else {
-                                $current_config['data']['config']['filter']['rule'][$i]['disabled'] = "";
-                        }
-                }
-                $i++;
-        }
+    $i = 0;
+    foreach ($filters['rule'] as $filter) {
+        if (strpos($filter['descr'], $rule_prefix) !== false) {
+            if ($fw_change_action === 0) {
+                unset($current_config['data']['config']['filter']['rule'][$i]['disabled']);
+            } else {
+                $current_config['data']['config']['filter']['rule'][$i]['disabled'] = "";
+            }
+       }
+       $i++;
+    }
 
 	// Apply changed configuration back to firewall
 	$change_result = api_request($target_pfsense_host, "POST", "config_set", "", $current_config['data']['config']);
@@ -246,29 +246,29 @@ function firewall_action($fw_change_action, $rule_prefix) {
 
 function api_request($target_pfsense_host, $method, $action, $params="", $data="") {
 	global $apikey, $secret;
-        $path = "/?action=" . $action;
-        $url = 'https://' . $target_pfsense_host . '/fauxapi/v1' . $path;
+    $path = "/?action=" . $action;
+    $url = 'https://' . $target_pfsense_host . '/fauxapi/v1' . $path;
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['fauxapi-auth: . ' . auth_gen($apikey, $secret)]);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['fauxapi-auth: . ' . auth_gen($apikey, $secret)]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        $json = curl_exec($ch);
-	curl_close($ch);
-        $result = json_decode($json,true);
-        return $result;
+    $json = curl_exec($ch);
+    curl_close($ch);
+    $result = json_decode($json,true);
+    return $result;
 }
 
 // Generate the fauxapi auth string
 function auth_gen($apikey, $secret) {
-        $nonce = makeNonce();
-        $timestamp = makeTimestamp();
-        $hash = hash('sha256', $secret . $timestamp . $nonce);
-        $return = $apikey . ":" . $timestamp . ":" . $nonce . ":" . $hash;
-        return $return;
+    $nonce = makeNonce();
+    $timestamp = makeTimestamp();
+    $hash = hash('sha256', $secret . $timestamp . $nonce);
+    $return = $apikey . ":" . $timestamp . ":" . $nonce . ":" . $hash;
+    return $return;
 }
 
 // Generate random string for creating a nonce
@@ -283,14 +283,14 @@ function makeRandomString($bits = 256) {
 
 // Make a timestamp
 function makeTimestamp() {
-        $stamp = gmdate("Ymd") . "Z" . gmdate("His");
-        return $stamp;
+    $stamp = gmdate("Ymd") . "Z" . gmdate("His");
+    return $stamp;
 }
 
 // Make a nonce
 function makeNonce() {
-        $nonce=hash('sha512', makeRandomString());
-        return substr($nonce,0,8);
+    $nonce=hash('sha512', makeRandomString());
+    return substr($nonce,0,8);
 }
 ?>
 
