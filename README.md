@@ -5,7 +5,7 @@ interface with SNMP and pfSense firewall rules using fauxapi
 
 Get yourself a copy of ndejong's pfsense fauxapi package for pfsense:
 
-[https://github.com/ndejong/pfsense_fauxapi]https://github.com/ndejong/pfsense_fauxapi
+[https://github.com/ndejong/pfsense_fauxapi](https://github.com/ndejong/pfsense_fauxapi)
 
 To use for pfsense, follow the instructions to install fauxapi on your pfsense
 firewall and then replace the appropriate values in the script.
