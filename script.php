@@ -241,10 +241,12 @@ function firewall_action($fw_change_action, $rule_prefix) {
     }
 
 	// Apply changed configuration back to firewall
-	$change_result = api_request($target_pfsense_host, "POST", "config_set", "", $current_config['data']['config']);
+    $change_result = api_request($target_pfsense_host, "POST", "config_set", "", $current_config['data']['config']);
+    $change_result = api_request($target_pfsense_host, "POST", "send_event", "[\"filter reload\"]", "", True);
+
 }
 
-function api_request($target_pfsense_host, $method, $action, $params="", $data="") {
+function api_request($target_pfsense_host, $method, $action, $params="", $data="", $filter_reload=False) {
 	global $apikey, $secret;
     $path = "/?action=" . $action;
     $url = 'https://' . $target_pfsense_host . '/fauxapi/v1' . $path;
@@ -252,7 +254,11 @@ function api_request($target_pfsense_host, $method, $action, $params="", $data="
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    if ($filter_reload === True) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+    } else {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    }
     curl_setopt($ch, CURLOPT_HTTPHEADER, ['fauxapi-auth: . ' . auth_gen($apikey, $secret)]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
